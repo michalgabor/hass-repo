@@ -1,5 +1,5 @@
 {
-  "image": "linuxserver/domoticz",
+  "image": "lscr.io/linuxserver/domoticz:latest",
   "name": "Domoticz",
   "version": "1.0.0",
   "slug": "domoticz",

@@ -1,7 +1,7 @@
 {
   "image": "domoticz/domoticz",
   "name": "Domoticz",
-  "version": "2023-beta.15212",
+  "version": "2023.1",
   "slug": "domoticz",
   "description": "HomeAssistant Domoticz Addon.",
   "arch": ["armv7", "aarch64", "amd64"],
@@ -11,7 +11,10 @@
   "panel_title" : "Domoticz",
   "ingress": true,
   "ports": {
-    "8080/tcp": 8080
+    "8080/tcp": null
+  },
+  "ports_description": {
+    "8080/tcp": "Not required for Ingress"
   },
   "environment" : { "EXTRA_CMD_ARG": "-nowwwpwd" }
 }

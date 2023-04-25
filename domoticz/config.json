@@ -3,11 +3,11 @@
   "name": "Domoticz",
   "version": "2023-beta.15212",
   "slug": "domoticz",
-  "description": "Domoticz app",
+  "description": "HomeAssistant Domoticz Addon. Domoticz is a very light weight home automation system that lets you monitor and configure miscellaneous devices, including lights, switches, various sensors/meters like temperature, rainfall, wind, ultraviolet (UV) radiation, electricity usage/production, gas consumption, water consumption and many more. Notifications/alerts can be sent to any mobile device.",
   "arch": ["armv7", "aarch64", "amd64"],
   "url": "https://hub.docker.com/r/domoticz",
   "ingress_port" : 8080,
-  "panel_icon" : "mdi:network-pos",
+  "panel_icon" : "mdi:chart-bell-curve-cumulative",
   "panel_title" : "Domoticz",
   "ingress": true,
   "environment" : { "CONFIG_PATH": "/data" }

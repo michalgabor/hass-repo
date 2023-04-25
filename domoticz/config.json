@@ -9,6 +9,7 @@
   "ingress_port" : 8080,
   "panel_icon" : "mdi:chart-bell-curve-cumulative",
   "panel_title" : "Domoticz",
+  "backup": "cold",
   "ingress": true,
   "ports": {
     "8080/tcp": null
@@ -16,5 +17,5 @@
   "ports_description": {
     "8080/tcp": "Not required for Ingress"
   },
-  "environment" : { "CONFIG_PATH": "/opt/domoticz/userdata", "DATABASE_PATH": "/data/domoticz.db", "EXTRA_CMD_ARG": "-nowwwpwd" }
+  "environment" : { "CONFIG_PATH": "/opt/domoticz/userdata", "TZ": "Europe/Bratislava", "DATABASE_PATH": "/data/domoticz.db", "EXTRA_CMD_ARG": "-nowwwpwd" }
 }

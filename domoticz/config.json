@@ -5,7 +5,7 @@
   "slug": "domoticz",
   "description": "HomeAssistant Domoticz Addon.",
   "arch": ["armv7", "aarch64", "amd64"],
-  "url": "https://github.com/michalgabor/hass-repo/domoticz",
+  "url": "https://github.com/michalgabor/hass-repo",
   "ingress_port" : 8080,
   "panel_icon" : "mdi:chart-bell-curve-cumulative",
   "panel_title" : "Domoticz",
@@ -16,5 +16,5 @@
   "ports_description": {
     "8080/tcp": "Not required for Ingress"
   },
-  "environment" : { "EXTRA_CMD_ARG": "-nowwwpwd" }
+  "environment" : { "CONFIG_PATH": "/opt/domoticz/userdata", "EXTRA_CMD_ARG": "-nowwwpwd" }
 }

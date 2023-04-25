@@ -16,5 +16,5 @@
   "ports_description": {
     "8080/tcp": "Not required for Ingress"
   },
-  "environment" : { "CONFIG_PATH": "/opt/domoticz/userdata", "EXTRA_CMD_ARG": "-nowwwpwd" }
+  "environment" : { "CONFIG_PATH": "/opt/domoticz/userdata", "EXTRA_CMD_ARG": "-nowwwpwd -wwwroot file_path /data/domoticz/www -dbase file_path  /data/domoticz/domoticz.db -userdata file_path /data/domoticz -approot file_path /data/domoticz" }
 }

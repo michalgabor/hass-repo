@@ -1,7 +1,7 @@
-Enter your MQTT server connection information, Username and password, then connect. Each message sent to the MQTT server will be displayed.  You can send your own messages as well.
+Domoticz is a very light weight home automation system that lets you monitor and configure miscellaneous devices, including lights, switches, various sensors/meters like temperature, rainfall, wind, ultraviolet (UV) radiation, electricity usage/production, gas consumption, water consumption and many more. Notifications/alerts can be sent to any mobile device.
 
-see the [MQTT Explorer website](https://mqtt-explorer.com/) for more information.
+see the [Domoticz website](https://www.domoticz.com/) for more information.
 
 
 # Credits
-This addon is [smeagolworm4](https://github.com/Smeagolworms4/MQTT-Explorer)'s docker [image](https://hub.docker.com/r/smeagolworms4/mqtt-explorer) packaged as a Home Assistant addon.
+This addon is Domoticz's docker [image](https://hub.docker.com/r/domoticz/domoticz) packaged as a Home Assistant addon.

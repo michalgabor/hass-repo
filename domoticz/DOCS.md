@@ -1,5 +1,5 @@
 # Use
-Makes a Domoticz instance available as a HomeAssistant add-on. Domoticz (UI interface) is accessible via HA Ingress Controller.
+Makes a Domoticz instance available as a HomeAssistant add-on. Domoticz (UI interface) is accessible via HA Ingress Controller. In this case Domoticz has deactivated authorization because authorization is applied on HA Ingress Controller.
 
 # Configuration
 It is possible to set the forwarding of port 8080 (UI interface). 

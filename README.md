@@ -1,1 +1,1 @@
-# hass-repo
+# MG hass addons repozitory

@@ -1,21 +1,9 @@
 # Use
-.
+Makes a Domoticz instance available as a HomeAssistant add-on. Domoticz (UI interface) is accessible via HA Ingress Controller.
 
 # Configuration
-.
-
-# Instructions
-.
-
-# Troubleshooting
-.
-
-
+It is possible to set the forwarding of port 8080 (UI interface). 
 
 
 # Credits
-.
-
-
-
-.
+This addon is Domoticz's docker [image](https://hub.docker.com/r/domoticz/domoticz) packaged as a Home Assistant addon.

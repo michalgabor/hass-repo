@@ -1,1 +1,4 @@
-# MG hass addons repozitory
+# MG hass addons repository
+
+addons:
+- Domoticz

@@ -1,5 +1,5 @@
 {
-  "image": "domoticz/domoticz",
+  "image": "domoticz/domoticz:{version}",
   "name": "Domoticz",
   "version": "2025.1",
   "slug": "domoticz",

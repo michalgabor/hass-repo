@@ -1,0 +1,7 @@
+{
+  "build_from": {
+    "amd64": "domoticz/domoticz:{version}",
+    "aarch64": "domoticz/domoticz:{version}",
+    "armv7": "domoticz/domoticz:{version}"
+  }
+}

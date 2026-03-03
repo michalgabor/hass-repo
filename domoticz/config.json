@@ -1,5 +1,4 @@
 {
-  "image": "domoticz/domoticz:{version}",
   "name": "Domoticz",
   "version": "2025.2",
   "slug": "domoticz",
@@ -17,5 +16,5 @@
   "ports_description": {
     "8080/tcp": "Not required for Ingress"
   },
-  "environment" : { "CONFIG_PATH": "/opt/domoticz/userdata", "TZ": "Europe/Bratislava", "DATABASE_PATH": "/data/domoticz.db", "EXTRA_CMD_ARG": "-nowwwpwd -sslwww 0" }
+  "environment" : { "TZ": "Europe/Bratislava", "EXTRA_CMD_ARG": "-nowwwpwd -sslwww 0" }
 }

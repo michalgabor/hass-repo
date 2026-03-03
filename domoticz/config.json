@@ -1,7 +1,7 @@
 {
   "image": "domoticz/domoticz:{version}",
   "name": "Domoticz",
-  "version": "2025.1",
+  "version": "2025.2",
   "slug": "domoticz",
   "description": "HomeAssistant Domoticz Addon.",
   "arch": ["armv7", "aarch64", "amd64"],

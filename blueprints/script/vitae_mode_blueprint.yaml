@@ -1,0 +1,100 @@
+blueprint:
+  name: "Vitae – Nastav režim"
+  description: >
+    Nastaví biodynamickú žiarovku Vitae na zvolený režim cez smart zásuvku.
+    Použij tento blueprint 3x – pre každý režim vytvor samostatný skript,
+    ktorý potom zavoláš zo scény alebo dashboardu.
+
+    Logika prepínania:
+    - >11s vypnutá → vždy Night (oranžová)
+    - <11s → posun na ďalší krok (Evening → Day)
+  domain: script
+  author: "HA Blueprint – Vitae"
+  input:
+    vitae_switch:
+      name: Smart zásuvka (Vitae)
+      selector:
+        entity:
+          domain: switch
+
+    vitae_mode:
+      name: Režim
+      description: Vyber cieľový režim žiarovky.
+      selector:
+        select:
+          options:
+            - label: "Noc – oranžová 1200K (bez modrej)"
+              value: "night"
+            - label: "Večer – teplá biela 2800K"
+              value: "evening"
+            - label: "Deň – jasná biela 4000K"
+              value: "day"
+
+variables:
+  mode: !input vitae_mode
+
+sequence:
+  - choose:
+
+      - conditions:
+          - condition: template
+            value_template: "{{ mode == 'night' }}"
+        sequence:
+          - action: switch.turn_off
+            target:
+              entity_id: !input vitae_switch
+          - delay: "00:00:15"
+          - action: switch.turn_on
+            target:
+              entity_id: !input vitae_switch
+
+      - conditions:
+          - condition: template
+            value_template: "{{ mode == 'evening' }}"
+        sequence:
+          - action: switch.turn_off
+            target:
+              entity_id: !input vitae_switch
+          - delay: "00:00:15"
+          - action: switch.turn_on
+            target:
+              entity_id: !input vitae_switch
+          - delay: "00:00:03"
+          - action: switch.turn_off
+            target:
+              entity_id: !input vitae_switch
+          - delay: "00:00:05"
+          - action: switch.turn_on
+            target:
+              entity_id: !input vitae_switch
+
+      - conditions:
+          - condition: template
+            value_template: "{{ mode == 'day' }}"
+        sequence:
+          - action: switch.turn_off
+            target:
+              entity_id: !input vitae_switch
+          - delay: "00:00:15"
+          - action: switch.turn_on
+            target:
+              entity_id: !input vitae_switch
+          - delay: "00:00:03"
+          - action: switch.turn_off
+            target:
+              entity_id: !input vitae_switch
+          - delay: "00:00:05"
+          - action: switch.turn_on
+            target:
+              entity_id: !input vitae_switch
+          - delay: "00:00:03"
+          - action: switch.turn_off
+            target:
+              entity_id: !input vitae_switch
+          - delay: "00:00:05"
+          - action: switch.turn_on
+            target:
+              entity_id: !input vitae_switch
+
+mode: single
+max_exceeded: silent

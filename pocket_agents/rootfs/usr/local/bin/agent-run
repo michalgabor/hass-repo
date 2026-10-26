@@ -1,0 +1,71 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Pocket Agents: spustí claude remote-control pre agenta s daným indexom
+# Použitie: agent-run <index>
+# ==============================================================================
+
+index="${1:?Použitie: agent-run <index>}"
+
+name=$(bashio::config "agents[${index}].name")
+title=$(bashio::config "agents[${index}].title" "${name}")
+permission_mode=$(bashio::config "agents[${index}].permission_mode" "default")
+spawn=$(bashio::config "agents[${index}].spawn" "same-dir")
+dir="/config/agents/${name}"
+
+# Tajomstvá ako premenné prostredia
+count=$(bashio::config 'secrets|length')
+for ((i = 0; i < count; i++)); do
+    key=$(bashio::config "secrets[${i}].name")
+    case "${key}" in
+        ANTHROPIC_API_KEY | ANTHROPIC_AUTH_TOKEN | CLAUDE_CODE_OAUTH_TOKEN)
+            # Remote Control vyžaduje prihlásenie cez claude.ai, tieto ho rozbijú
+            bashio::log.warning "[${name}] Tajomstvo ${key} ignorujem, Remote Control s ním nefunguje."
+            continue
+            ;;
+    esac
+    export "${key}=$(bashio::config "secrets[${i}].value")"
+done
+
+if [[ ! -f /data/.claude/.credentials.json ]]; then
+    bashio::log.warning "[${name}] Claude Code nie je prihlásený."
+    bashio::log.warning "[${name}] Otvor panel Pocket Agents, spusti 'agent-setup' a potom reštartuj doplnok."
+    sleep 60
+    exit 1
+fi
+
+cd "${dir}" || bashio::exit.nok "[${name}] Adresár ${dir} neexistuje."
+
+args=(
+    remote-control
+    --name "${title}"
+    --remote-control-session-name-prefix "${name}"
+    --spawn "${spawn}"
+    --permission-mode "${permission_mode}"
+)
+# --capacity nejde kombinovať so --spawn=session
+if [[ "${spawn}" != "session" ]] && bashio::config.has_value "agents[${index}].capacity"; then
+    args+=(--capacity "$(bashio::config "agents[${index}].capacity")")
+fi
+
+bashio::log.info "[${name}] Spúšťam: claude ${args[*]}"
+
+stopping=0
+claude "${args[@]}" > >(sed -u "s/^/[${name}] /") 2>&1 &
+child=$!
+trap 'stopping=1; kill -TERM "${child}" 2>/dev/null' TERM INT
+
+wait "${child}"
+rc=$?
+# wait preruší prijatý signál, počkáme na skutočné ukončenie
+while kill -0 "${child}" 2>/dev/null; do
+    wait "${child}"
+    rc=$?
+done
+
+if [[ "${stopping}" -eq 0 ]]; then
+    bashio::log.warning "[${name}] claude remote-control skončil s kódom ${rc}, reštart o 30 s."
+    sleep 30
+fi
+
+exit "${rc}"

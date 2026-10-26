@@ -1,0 +1,46 @@
+#!/bin/bash
+# ==============================================================================
+# Pocket Agents: interaktívne prvé nastavenie
+# - prihlásenie do Claude (claude auth login)
+# - potvrdenie trustu adresára a Remote Control pre každého agenta
+# ==============================================================================
+
+export HOME=/data
+
+if [[ ! -f /data/.claude/.credentials.json ]]; then
+    echo ">> Claude Code nie je prihlásený, spúšťam 'claude auth login'."
+    echo ">> Zvoľ prihlásenie cez claude.ai (Remote Control nefunguje s API kľúčom)."
+    if ! claude auth login; then
+        echo "!! Prihlásenie zlyhalo." >&2
+        exit 1
+    fi
+fi
+
+on_interrupt() {
+    echo
+    echo ">> Ctrl+C: pokračujem ďalším agentom."
+}
+trap on_interrupt INT
+
+shopt -s nullglob
+dirs=(/config/agents/*/)
+if [[ ${#dirs[@]} -eq 0 ]]; then
+    echo "!! V /config/agents nie sú žiadni agenti. Reštartuj doplnok, aby sa vytvorili."
+    exit 1
+fi
+
+for dir in "${dirs[@]}"; do
+    name=$(basename "${dir}")
+    echo
+    echo "=================================================================="
+    echo " Agent: ${name} (${dir})"
+    echo " Potvrď trust adresára (y) a Remote Control. Keď sa server"
+    echo " pripojí, ukonči ho Ctrl+C a pokračuje sa ďalším agentom."
+    echo "=================================================================="
+    cd "${dir}" || continue
+    claude remote-control --spawn session --no-create-session-in-dir
+done
+
+trap - INT
+echo
+echo ">> Hotovo. Reštartuj doplnok Pocket Agents, aby sa agenti spustili."

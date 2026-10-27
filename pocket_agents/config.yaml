@@ -1,5 +1,5 @@
 name: Pocket Agents
-version: "1.0.0"
+version: "1.0.1"
 slug: pocket_agents
 description: Run multiple Claude Code Remote Control agents, controlled from the Claude mobile app
 url: https://github.com/michalgabor/hass-repo/tree/main/pocket_agents

@@ -1,0 +1,38 @@
+name: Pocket Agents
+version: "1.0.0"
+slug: pocket_agents
+description: Run multiple Claude Code Remote Control agents, controlled from the Claude mobile app
+url: https://github.com/michalgabor/hass-repo/tree/main/pocket_agents
+arch:
+  - amd64
+  - aarch64
+init: false
+startup: services
+boot: auto
+ingress: true
+ingress_port: 7681
+panel_title: Pocket Agents
+panel_icon: mdi:robot-outline
+homeassistant_api: true
+map:
+  - type: addon_config
+    read_only: false
+options:
+  agents:
+    - name: hass
+      title: Home Assistant
+      permission_mode: default
+      spawn: same-dir
+      enabled: true
+  secrets: []
+schema:
+  agents:
+    - name: match(^[a-z0-9][a-z0-9-]{0,30}$)
+      title: str?
+      permission_mode: list(default|acceptEdits|plan)?
+      spawn: list(same-dir|worktree|session)?
+      capacity: int(1,32)?
+      enabled: bool?
+  secrets:
+    - name: match(^[A-Z_][A-Z0-9_]*$)
+      value: password

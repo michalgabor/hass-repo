@@ -1,0 +1,46 @@
+#!/bin/bash
+# ==============================================================================
+# Pocket Agents: interactive first-time setup
+# - sign in to Claude (claude auth login)
+# - confirm directory trust and Remote Control for each agent
+# ==============================================================================
+
+export HOME=/data
+
+if [[ ! -f /data/.claude/.credentials.json ]]; then
+    echo ">> Claude Code is not logged in, running 'claude auth login'."
+    echo ">> Choose the claude.ai sign-in (Remote Control does not work with an API key)."
+    if ! claude auth login; then
+        echo "!! Login failed." >&2
+        exit 1
+    fi
+fi
+
+on_interrupt() {
+    echo
+    echo ">> Ctrl+C: continuing with the next agent."
+}
+trap on_interrupt INT
+
+shopt -s nullglob
+dirs=(/config/agents/*/)
+if [[ ${#dirs[@]} -eq 0 ]]; then
+    echo "!! No agents in /config/agents. Restart the add-on to create them."
+    exit 1
+fi
+
+for dir in "${dirs[@]}"; do
+    name=$(basename "${dir}")
+    echo
+    echo "=================================================================="
+    echo " Agent: ${name} (${dir})"
+    echo " Confirm directory trust (y) and Remote Control. Once the server"
+    echo " is connected, stop it with Ctrl+C to continue with the next agent."
+    echo "=================================================================="
+    cd "${dir}" || continue
+    claude remote-control --spawn session --no-create-session-in-dir
+done
+
+trap - INT
+echo
+echo ">> Done. Restart the Pocket Agents add-on to start the agents."

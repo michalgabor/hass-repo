@@ -1,90 +1,92 @@
 # Pocket Agents
 
-Home Assistant doplnok, ktorý spúšťa viac **Claude Code Remote Control** serverov
-("agentov"). Každý agent beží vo vlastnom adresári `/addon_configs/<repo>_pocket_agents/agents/<name>/`
-(v kontajneri `/config/agents/<name>/`) s vlastným `CLAUDE.md`, `.mcp.json`
-a `.claude/skills/`. Agentov ovládaš z Claude appky v telefóne alebo z
+A Home Assistant add-on that runs multiple **Claude Code Remote Control** servers
+("agents"). Each agent runs in its own directory `/addon_configs/<repo>_pocket_agents/agents/<name>/`
+(`/config/agents/<name>/` inside the container) with its own `CLAUDE.md`, `.mcp.json`
+and `.claude/skills/`. You control the agents from the Claude mobile app or from
 [claude.ai/code](https://claude.ai/code).
 
-> Remote Control vyžaduje predplatné Claude Pro, Max, Team alebo Enterprise
-> a prihlásenie cez claude.ai. API kľúč nefunguje.
+> Remote Control requires a Claude Pro, Max, Team or Enterprise subscription
+> and a claude.ai sign-in. API keys do not work.
 
-## Inštalácia
+## Installation
 
-1. V Home Assistant otvor **Nastavenia → Doplnky → Obchod s doplnkami**.
-2. Vpravo hore **⋮ → Repozitáre** a pridaj `https://github.com/michalgabor/hass-repo`.
-3. Nájdi doplnok **Pocket Agents** a nainštaluj ho (obraz sa zostaví lokálne,
-   chvíľu to trvá).
-4. Spusti doplnok. Kým nie je prihlásenie, agenti v logu len vyzývajú na `agent-setup`.
+1. In Home Assistant open **Settings → Add-ons → Add-on Store**.
+2. Top right **⋮ → Repositories** and add `https://github.com/michalgabor/hass-repo`.
+3. Find the **Pocket Agents** add-on and install it (the image is built locally,
+   which takes a while).
+4. Start the add-on. Until you sign in, the agents only log a prompt to run `agent-setup`.
 
-## Prvé nastavenie
+## First-time setup
 
-1. Otvor panel **Pocket Agents** v bočnom menu (webový terminál).
-2. Spusti:
+1. Open the **Pocket Agents** panel in the sidebar (web terminal).
+2. Run:
 
    ```sh
    agent-setup
    ```
 
-   - Ak ešte nie si prihlásený, spustí sa `claude auth login`. Zvoľ prihlásenie
-     cez claude.ai, otvor odkaz v prehliadači a vlož kód späť do terminálu.
-   - Potom sa pre každého agenta v `/config/agents/*/` spustí
+   - If you are not signed in yet, `claude auth login` starts. Choose the
+     claude.ai sign-in, open the link in a browser and paste the code back
+     into the terminal.
+   - Then, for each agent in `/config/agents/*/`, it runs
      `claude remote-control --spawn session --no-create-session-in-dir`.
-     Potvrď **trust adresára** (`y`) a povolenie Remote Control. Keď server
-     beží, ukonči ho **Ctrl+C** — skript pokračuje ďalším agentom.
-3. **Reštartuj doplnok.** Agenti sa spustia ako služby a objavia sa v Claude
-   appke v zozname sessions (názov podľa `title`, automaticky generované
-   sessions majú prefix podľa `name`).
+     Confirm **directory trust** (`y`) and Remote Control. Once the server is
+     running, stop it with **Ctrl+C** and the script continues with the next agent.
+3. **Restart the add-on.** The agents start as services and appear in the
+   session list in the Claude app (named after `title`; auto-generated
+   sessions are prefixed with `name`).
 
-Prihlásenie a trust sa ukladajú do `/data` doplnku, takže prežijú reštart
-aj aktualizáciu.
+The sign-in and trust decisions are stored in the add-on's `/data`, so they
+survive restarts and updates.
 
-## Konfigurácia
+## Configuration
 
 ```yaml
 agents:
-  - name: hass                 # ^[a-z0-9][a-z0-9-]{0,30}$, zároveň názov adresára
-    title: Home Assistant      # názov session v appke (predvolene name)
+  - name: hass                 # ^[a-z0-9][a-z0-9-]{0,30}$, also the directory name
+    title: Home Assistant      # session name in the app (defaults to name)
     permission_mode: default   # default | acceptEdits | plan
     spawn: same-dir            # same-dir | worktree | session
-    capacity: 4                # 1–32, max. súbežných sessions (nie pri spawn: session)
-    enabled: true              # false = agent sa nespustí
+    capacity: 4                # 1–32, max concurrent sessions (not with spawn: session)
+    enabled: true              # false = the agent is not started
 secrets:
   - name: HASS_TOKEN           # ^[A-Z_][A-Z0-9_]*$
-    value: "eyJ..."            # exportuje sa ako premenná prostredia pre všetkých agentov
+    value: "eyJ..."            # exported as an environment variable for all agents
 ```
 
-- `spawn: same-dir` – všetky sessions zdieľajú adresár agenta.
-- `spawn: worktree` – každá nová session dostane vlastný git worktree; adresár
-  agenta musí byť git repozitár (s aspoň jedným commitom).
-- `spawn: session` – jedna session, ďalšie pripojenia sa odmietnu.
-- `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN` a `CLAUDE_CODE_OAUTH_TOKEN`
-  v `secrets` sa ignorujú, pretože by Remote Control vypli.
+- `spawn: same-dir` – all sessions share the agent's directory.
+- `spawn: worktree` – every new session gets its own git worktree; the agent's
+  directory must be a git repository (with at least one commit).
+- `spawn: session` – a single session; further connections are rejected.
+- `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN` and `CLAUDE_CODE_OAUTH_TOKEN`
+  in `secrets` are ignored because they would disable Remote Control.
 
-## Pridanie agenta
+## Adding an agent
 
-1. V konfigurácii doplnku pridaj do `agents` novú položku, napr.:
+1. Add a new entry to `agents` in the add-on configuration, e.g.:
 
    ```yaml
-   - name: energia
-     title: Energia
+   - name: energy
+     title: Energy
      permission_mode: plan
    ```
 
-2. Ulož a reštartuj doplnok – vytvorí sa `/config/agents/energia/` so šablónou
-   `CLAUDE.md`, prázdnym `.mcp.json` a `.claude/skills/`. Existujúce súbory sa
-   nikdy neprepisujú.
-3. V paneli spusti znova `agent-setup` (potvrdíš trust nového adresára;
-   pri už potvrdených agentoch len stlač Ctrl+C) a doplnok ešte raz reštartuj.
-4. Uprav `CLAUDE.md`, `.mcp.json` a skills agenta – v paneli
-   (`cd /config/agents/energia`) alebo cez Samba / File editor v
-   `/addon_configs/<repo>_pocket_agents/agents/energia/`.
+2. Save and restart the add-on – this creates `/config/agents/energy/` with a
+   template `CLAUDE.md`, an empty `.mcp.json` and `.claude/skills/`. Existing
+   files are never overwritten.
+3. Run `agent-setup` in the panel again (to confirm trust for the new
+   directory; for agents you already confirmed just press Ctrl+C) and restart
+   the add-on once more.
+4. Edit the agent's `CLAUDE.md`, `.mcp.json` and skills – in the panel
+   (`cd /config/agents/energy`) or via Samba / File editor in
+   `/addon_configs/<repo>_pocket_agents/agents/energy/`.
 
-## Príklad `.mcp.json` pre Home Assistant MCP
+## Example `.mcp.json` for the Home Assistant MCP server
 
-Na Home Assistant zapni integráciu **Model Context Protocol Server**, vytvor
-long-lived access token (Profil → Zabezpečenie) a ulož ho do `secrets` ako
-`HASS_TOKEN`. Potom do `/config/agents/hass/.mcp.json`:
+In Home Assistant enable the **Model Context Protocol Server** integration,
+create a long-lived access token (Profile → Security) and store it in
+`secrets` as `HASS_TOKEN`. Then put this in `/config/agents/hass/.mcp.json`:
 
 ```json
 {
@@ -100,19 +102,20 @@ long-lived access token (Profil → Zabezpečenie) a ulož ho do `secrets` ako
 }
 ```
 
-Claude Code pri načítaní `.mcp.json` dosadí `${HASS_TOKEN}` z prostredia.
-Pri prvom použití projektového MCP servera sa ťa môže opýtať na schválenie.
+Claude Code expands `${HASS_TOKEN}` from the environment when it loads
+`.mcp.json`. It may ask you to approve the project MCP server the first time
+it is used.
 
-## Aktualizácia Claude Code
+## Updating Claude Code
 
-Obraz sa zostavuje s `@anthropic-ai/claude-code@latest` a automatické
-aktualizácie sú vypnuté (`DISABLE_AUTOUPDATER=1`). Novú verziu Claude Code
-dostaneš tak, že v `pocket_agents/config.yaml` zvýšiš `version`
-(napr. `1.0.0` → `1.0.1`), pushneš zmenu a v HA klikneš na **Aktualizovať** –
-Supervisor obraz zostaví nanovo a stiahne aktuálny Claude Code.
-Konkrétnu verziu môžeš pripnúť cez `CLAUDE_VERSION` v `build.yaml`.
+The image is built with `@anthropic-ai/claude-code@latest` and auto-updates
+are disabled (`DISABLE_AUTOUPDATER=1`). To get a new Claude Code version, bump
+`version` in `pocket_agents/config.yaml` (e.g. `1.0.0` → `1.0.1`), push the
+change and click **Update** in HA – the Supervisor rebuilds the image and
+installs the current Claude Code. You can pin a specific version via
+`CLAUDE_VERSION` in `build.yaml`.
 
-## Logy
+## Logs
 
-Výstup každého agenta je v logu doplnku s prefixom `[name]`. Ak
-`claude remote-control` skončí, služba počká 30 s a s6 ju spustí znova.
+Each agent's output appears in the add-on log prefixed with `[name]`. If
+`claude remote-control` exits, the service waits 30 s and s6 starts it again.

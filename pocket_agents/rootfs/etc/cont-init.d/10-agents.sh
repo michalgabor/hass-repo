@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bashio
 # shellcheck shell=bash
 # ==============================================================================
-# Pocket Agents: pripraví adresáre agentov a vygeneruje pre každého s6 službu
+# Pocket Agents: prepare agent directories and generate an s6 service for each
 # ==============================================================================
 set -e
 
@@ -9,17 +9,17 @@ AGENTS_ROOT=/config/agents
 
 mkdir -p "${AGENTS_ROOT}"
 
-# Služby z predchádzajúceho behu (ak kontajner nebol znovu vytvorený)
+# Services left over from a previous run (if the container was not recreated)
 rm -rf /etc/services.d/agent-*
 
 count=$(bashio::config 'agents|length')
 
-# Duplicitné mená kontrolujeme skôr, než čokoľvek vytvoríme
+# Check for duplicate names before creating anything
 declare -A seen=()
 for ((i = 0; i < count; i++)); do
     name=$(bashio::config "agents[${i}].name")
     if [[ -n "${seen[${name}]+x}" ]]; then
-        bashio::exit.nok "Duplicitné meno agenta: '${name}'. Mená agentov musia byť unikátne."
+        bashio::exit.nok "Duplicate agent name: '${name}'. Agent names must be unique."
     fi
     seen[${name}]=1
 done
@@ -30,7 +30,7 @@ for ((i = 0; i < count; i++)); do
     spawn=$(bashio::config "agents[${i}].spawn" "same-dir")
 
     if bashio::config.false "agents[${i}].enabled"; then
-        bashio::log.info "Agent '${name}' je vypnutý (enabled: false), preskakujem."
+        bashio::log.info "Agent '${name}' is disabled (enabled: false), skipping."
         continue
     fi
 
@@ -41,23 +41,23 @@ for ((i = 0; i < count; i++)); do
         cat > "${dir}/CLAUDE.md" <<TEMPLATE
 # ${title}
 
-Si agent "${name}" bežiaci v Home Assistant doplnku Pocket Agents.
-Ovládaný si cez Claude Code Remote Control z Claude appky v telefóne.
+You are the "${name}" agent running in the Pocket Agents Home Assistant add-on.
+You are controlled via Claude Code Remote Control from the Claude mobile app.
 
-## Prostredie
+## Environment
 
-- Pracovný adresár: ${dir}
-- Konfigurácia Home Assistant: /homeassistant nie je namapovaná; na HA pristupuj cez MCP alebo API.
-- Tajomstvá z konfigurácie doplnku sú dostupné ako premenné prostredia.
-- MCP servery: .mcp.json v tomto adresári.
-- Skills: .claude/skills/ v tomto adresári.
+- Working directory: ${dir}
+- The Home Assistant configuration (/homeassistant) is not mapped; access HA via MCP or the API.
+- Secrets from the add-on configuration are available as environment variables.
+- MCP servers: .mcp.json in this directory.
+- Skills: .claude/skills/ in this directory.
 
-## Pokyny
+## Guidelines
 
-- Odpovedaj stručne, správy čítam na mobile.
-- Pred zmenami, ktoré nejdú vrátiť, sa opýtaj.
+- Keep answers short, I read them on my phone.
+- Ask before making changes that cannot be undone.
 TEMPLATE
-        bashio::log.info "Agent '${name}': vytvorený CLAUDE.md zo šablóny."
+        bashio::log.info "Agent '${name}': created CLAUDE.md from template."
     fi
 
     if [[ ! -f "${dir}/.mcp.json" ]]; then
@@ -65,7 +65,7 @@ TEMPLATE
     fi
 
     if [[ "${spawn}" == "worktree" ]] && ! git -C "${dir}" rev-parse --git-dir > /dev/null 2>&1; then
-        bashio::log.warning "Agent '${name}': spawn=worktree vyžaduje git repozitár v ${dir}."
+        bashio::log.warning "Agent '${name}': spawn=worktree requires a git repository in ${dir}."
     fi
 
     svc="/etc/services.d/agent-${name}"
@@ -76,5 +76,5 @@ exec /usr/local/bin/agent-run ${i}
 RUN
     chmod +x "${svc}/run"
 
-    bashio::log.info "Agent '${name}' pripravený (${dir})."
+    bashio::log.info "Agent '${name}' ready (${dir})."
 done

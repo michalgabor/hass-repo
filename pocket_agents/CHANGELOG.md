@@ -2,4 +2,4 @@
 
 ## 1.0.0
 
-- Prvé vydanie: viac Claude Code Remote Control agentov, ingress terminál, `agent-setup`.
+- Initial release: multiple Claude Code Remote Control agents, ingress terminal, `agent-setup`.

@@ -1,8 +1,8 @@
 #!/usr/bin/with-contenv bashio
 # shellcheck shell=bash
 # ==============================================================================
-# Pocket Agents: webový terminál pre ingress panel
+# Pocket Agents: web terminal for the ingress panel
 # ==============================================================================
 mkdir -p /config/agents
-bashio::log.info "Spúšťam ttyd na porte 7681."
+bashio::log.info "Starting ttyd on port 7681."
 exec ttyd -p 7681 -W -w /config/agents bash -l
